@@ -21,6 +21,7 @@
 
 #include "src/internal/custom_audio_transport_impl.h"
 #include "src/internal/local_audio_track.h"
+#include "src/codecs/video_encoder_factory.h"
 
 namespace libwebrtc {
 
@@ -117,6 +118,8 @@ class RTCPeerConnectionFactoryImpl : public RTCPeerConnectionFactory {
   std::unique_ptr<webrtc::TaskQueueFactory> task_queue_factory_;
   webrtc::scoped_refptr<webrtc::CustomAudioTransportFactory>
       audio_transport_factory_;
+
+  std::shared_ptr<HWController> hw_controller;
 };
 
 }  // namespace libwebrtc

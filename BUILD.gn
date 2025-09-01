@@ -3,6 +3,7 @@ import("../webrtc.gni")
 declare_args() {
   libwebrtc_intel_media_sdk = false
   libwebrtc_desktop_capture = true
+  libwebrtc_ffmpeg_codecs = true
 }
 
 if (is_android) {
@@ -157,6 +158,25 @@ rtc_shared_library("libwebrtc") {
     "src/rtc_video_track_impl.h",
     "src/rtc_logging.cc",
   ]
+  if (is_win && libwebrtc_ffmpeg_codecs) {
+    sources += [
+      "src/codecs/ffmpeg/nvenc.h",
+      "src/codecs/ffmpeg/nvenc.cc",
+      "src/codecs/ffmpeg/nvenc_encoder.cc",
+      "src/codecs/ffmpeg/nvenc_encoder.h",
+      "src/codecs/ffmpeg/dyn.h",
+      "src/codecs/ffmpeg/dyn.cc",
+      "src/codecs/video_encoder_factory.h",
+      "src/codecs/video_encoder_factory.cc",
+
+      "src/codecs/ffmpeg/video_encoder_factory_template_ffmpeg_h264_adapter.h",
+    ]
+
+    include_dirs += [ "src/codecs/ffmpeg/third/ffmpeg/include" ]
+    defines += [
+      "USE_FFMPEG_COODECS",
+    ]
+  }
 
   # intel media sdk
   if (is_win && libwebrtc_intel_media_sdk) {

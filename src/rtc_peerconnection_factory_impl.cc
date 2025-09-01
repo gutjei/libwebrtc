@@ -17,12 +17,14 @@
 #if defined(USE_INTEL_MEDIA_SDK)
 #include "src/win/mediacapabilities.h"
 #include "src/win/msdkvideodecoderfactory.h"
-#include "src/win/msdkvideoencoderfactory.h"
 #endif
 #if defined(WEBRTC_IOS)
 #include "engine/sdk/objc/Framework/Classes/videotoolboxvideocodecfactory.h"
 #endif
 #include <api/task_queue/default_task_queue_factory.h>
+
+#include "src/codecs/video_encoder_factory.h"
+
 
 namespace libwebrtc {
 
@@ -77,6 +79,8 @@ bool RTCPeerConnectionFactoryImpl::Initialize() {
   }
 
   if (!rtc_peerconnection_factory_) {
+    hw_controller = std::make_shared<HWController>();
+    hw_controller->SetUseHW(true);
     rtc_peerconnection_factory_ = CreatePeerConnectionFactory(
         network_thread_.get(), worker_thread_.get(), signaling_thread_.get(),
         audio_device_module_, webrtc::CreateBuiltinAudioEncoderFactory(),
@@ -84,7 +88,8 @@ bool RTCPeerConnectionFactoryImpl::Initialize() {
 #if defined(USE_INTEL_MEDIA_SDK)
         CreateIntelVideoEncoderFactory(), CreateIntelVideoDecoderFactory(),
 #else
-        webrtc::CreateBuiltinVideoEncoderFactory(),
+         //webrtc::CreateBuiltinVideoEncoderFactory(),
+        std::make_unique<BetterEncoderFactory>(hw_controller),
         webrtc::CreateBuiltinVideoDecoderFactory(),
 #endif
         nullptr, audio_processing_impl_->GetAudioProcessing(), nullptr, nullptr,
